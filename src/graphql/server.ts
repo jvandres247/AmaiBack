@@ -7,11 +7,13 @@ import { userTypeDefs } from "./schema/user.schema";
 import { profileTypeDefs } from "./schema/profile.schema";
 import { plantTypeDefs } from "./schema/plants.schema";
 import { onboardingTypeDefs } from "./schema/onboarding.schema";
+import { emotionTypeDefs } from "./schema/emotion.schema";
 
 import { userResolvers } from "./resolvers/user.resolver";
 import { profileResolvers } from "./resolvers/profile.resolver";
 import { plantResolvers } from "./resolvers/plants.resolver";
 import { onboardingResolvers } from "./resolvers/onboarding.resolver";
+import { emotionResolvers } from "./resolvers/emotion.resolver";
 
 export const createServer = async () => {
   const app = express();
@@ -22,12 +24,14 @@ export const createServer = async () => {
       profileTypeDefs,
       plantTypeDefs,
       onboardingTypeDefs,
+      emotionTypeDefs,
     ],
     resolvers: [
       userResolvers,
       profileResolvers,
       plantResolvers,
       onboardingResolvers,
+      emotionResolvers,
     ],
     context: buildContext,
   });

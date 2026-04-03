@@ -3,9 +3,11 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  OneToMany,
 } from "typeorm";
 
 import { UserRole } from "./user-role.enum";
+import { EmotionLog } from "../emotion/emotionLog.entity";
 
 @Entity("users")
 export class User {
@@ -33,4 +35,7 @@ export class User {
 
   @CreateDateColumn()
   createdAt!: Date;
+
+  @OneToMany(() => EmotionLog, (log) => log.user)
+  emotionLogs!: EmotionLog[];
 }

@@ -6,6 +6,8 @@ import {
   GlobalSignOutCommand,
   CognitoIdentityProviderClient,
   SignUpCommand,
+  ForgotPasswordCommand,
+  ConfirmForgotPasswordCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
 
 const client = new CognitoIdentityProviderClient({
@@ -79,4 +81,30 @@ export const logoutUser = async (accessToken: string) => {
 
   await client.send(command);
   return true;
+};
+
+export const forgotPassword = async (email: string) => {
+  const command = new ForgotPasswordCommand({
+    ClientId: process.env.COGNITO_CLIENT_ID!,
+    Username: email,
+    SecretHash: generateSecretHash(email),
+  });
+
+  return client.send(command);
+};
+
+export const confirmForgotPassword = async (
+  email: string,
+  code: string,
+  newPassword: string,
+) => {
+  const command = new ConfirmForgotPasswordCommand({
+    ClientId: process.env.COGNITO_CLIENT_ID!,
+    Username: email,
+    ConfirmationCode: code,
+    Password: newPassword,
+    SecretHash: generateSecretHash(email),
+  });
+
+  return client.send(command);
 };
