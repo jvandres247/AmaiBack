@@ -39,4 +39,9 @@ export const userTypeDefs = gql`
     refresh(refreshToken: String!): AuthTokens!
     logout: Boolean!
   }
+
+  extend type Mutation {
+    forgotPassword(email: String!): Boolean
+    resetPassword(email: String!, code: String!, newPassword: String!): Boolean
+  }
 `;

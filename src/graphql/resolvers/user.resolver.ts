@@ -6,6 +6,8 @@ import {
   loginUser,
   refreshSession,
   logoutUser,
+  forgotPassword,
+  confirmForgotPassword,
 } from "@modules/auth/cognito.service";
 import { UserRole } from "@db/entities/user/user-role.enum";
 import jwt from "jsonwebtoken";
@@ -103,6 +105,16 @@ export const userResolvers = {
 
       const token = context.req.headers.authorization.replace("Bearer ", "");
       return logoutUser(token);
+    },
+
+    forgotPassword: async (_: any, { email }: any) => {
+      await forgotPassword(email);
+      return true;
+    },
+
+    resetPassword: async (_: any, { email, code, newPassword }: any) => {
+      await confirmForgotPassword(email, code, newPassword);
+      return true;
     },
   },
 };
