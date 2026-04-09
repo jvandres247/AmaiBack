@@ -24,7 +24,6 @@ export const verifyToken = (token: string): Promise<any> => {
       (err, decoded: any) => {
         if (err) return reject(err);
 
-        // 🔒 SECURITY CHECKS
         if (decoded.token_use !== "access") {
           return reject(new Error("Invalid token use"));
         }

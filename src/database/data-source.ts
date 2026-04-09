@@ -10,7 +10,7 @@ export const AppDataSource = new DataSource({
 
   synchronize: process.env.NODE_ENV !== "production",
   dropSchema: process.env.NODE_ENV === "test",
-  logging: true,
+  logging: false,
 
   entities: ["src/database/entities/**/*.entity.ts"],
   migrations: ["src/database/migrations/*.ts"],

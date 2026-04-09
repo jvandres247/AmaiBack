@@ -57,12 +57,16 @@ export const loginUser = async (email: string, password: string) => {
   };
 };
 
-export const refreshSession = async (refreshToken: string) => {
+export const refreshSession = async (
+  username: string,
+  refreshToken: string,
+) => {
   const command = new InitiateAuthCommand({
     AuthFlow: AuthFlowType.REFRESH_TOKEN_AUTH,
     ClientId: process.env.COGNITO_CLIENT_ID!,
     AuthParameters: {
       REFRESH_TOKEN: refreshToken,
+      SECRET_HASH: generateSecretHash(username),
     },
   });
 

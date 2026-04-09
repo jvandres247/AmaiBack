@@ -96,8 +96,9 @@ export const userResolvers = {
         user,
       };
     },
-    refresh: async (_: any, { refreshToken }: any) => {
-      return refreshSession(refreshToken);
+    refresh: async (_: any, { refreshToken }: any, context: any) => {
+      if (!context.user) throw new Error("Unauthorized");
+      return await refreshSession(context.user.cognitoSub, refreshToken);
     },
 
     logout: async (_: any, __: any, context: any) => {
