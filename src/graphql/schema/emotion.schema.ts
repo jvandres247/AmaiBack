@@ -27,6 +27,8 @@ export const emotionTypeDefs = gql`
     subEmotions: [SubEmotion!]
     causes: [EmotionCause!]
     notes: String
+    pointsEarned: Int
+    loggedAt: String!
     createdAt: String!
   }
 
@@ -35,14 +37,50 @@ export const emotionTypeDefs = gql`
     subEmotionIds: [ID!]
     causeIds: [ID!]
     notes: String
+    loggedAt: String!
+  }
+
+  input UpdateEmotionLogInput {
+    logId: String!
+    emotionId: String
+    subEmotionIds: [String!]
+    causeIds: [String!]
+    notes: String
+    loggedAt: String!
+  }
+
+  input DeleteEmotionLogInput {
+    logId: String!
+  }
+
+  type DeleteEmotionLogResponse {
+    success: Boolean!
+    message: String!
+    deletedLog: DeletedLogInfo
+  }
+
+  type DeletedLogInfo {
+    id: ID!
+    loggedAt: DateTime
+    emotionName: String
+  }
+
+  input EmotionLogsFilters {
+    startDate: String
+    endDate: String
+    emotionIds: [String]
+    causeIds: [String]
+    searchNotes: String
   }
 
   extend type Query {
     emotions: [Emotion!]!
-    emotionLogs(startDate: String, endDate: String): [EmotionLog!]!
+    emotionLogs(input: EmotionLogsFilters!): [EmotionLog!]!
   }
 
   extend type Mutation {
     createEmotionLog(input: CreateEmotionLogInput!): EmotionLog!
+    updateEmotionLog(input: UpdateEmotionLogInput!): EmotionLog!
+    deleteEmotionLog(input: DeleteEmotionLogInput!): DeleteEmotionLogResponse!
   }
 `;

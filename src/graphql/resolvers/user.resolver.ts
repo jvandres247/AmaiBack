@@ -66,7 +66,6 @@ export const userResolvers = {
 
       return true;
     },
-
     login: async (_: any, { email, password }: any) => {
       const repo = AppDataSource.getRepository(User);
 
@@ -100,19 +99,16 @@ export const userResolvers = {
       if (!context.user) throw new Error("Unauthorized");
       return await refreshSession(context.user.cognitoSub, refreshToken);
     },
-
     logout: async (_: any, __: any, context: any) => {
       if (!context.user) throw new Error("Unauthorized");
 
       const token = context.req.headers.authorization.replace("Bearer ", "");
       return logoutUser(token);
     },
-
     forgotPassword: async (_: any, { email }: any) => {
       await forgotPassword(email);
       return true;
     },
-
     resetPassword: async (_: any, { email, code, newPassword }: any) => {
       await confirmForgotPassword(email, code, newPassword);
       return true;

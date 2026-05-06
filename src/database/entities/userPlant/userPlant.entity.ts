@@ -20,5 +20,5 @@ export class UserPlant {
   endedAt!: Date;
 
   @Column({ type: "int", default: 0 })
-  progressPercentage!: number;
+  progressPoints!: number;
 }

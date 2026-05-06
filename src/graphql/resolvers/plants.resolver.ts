@@ -1,28 +1,36 @@
-import { AppDataSource } from "@db/data-source";
-import { PlantSeason } from "@db/entities/plantSeason/plants.entity";
+import { getActivePlants } from "@/database/commands/plants/plants.commands";
+import { getPlantsByUser } from "@/database/commands/userPlant/userPlant.commands";
 
 export const plantResolvers = {
   Query: {
     activePlants: async (_: any, { input }: any, context: any) => {
       if (!context.user) throw new Error("Unauthorized");
-      const repo = AppDataSource.getRepository(PlantSeason);
 
-      const seasons = await repo
-        .createQueryBuilder("season")
-        .leftJoinAndSelect("season.plant", "plant")
-        .leftJoinAndSelect("plant.stages", "stages")
-        .where("season.isActive = true")
-        .andWhere("CURRENT_DATE BETWEEN season.startDate AND season.endDate")
-        .orderBy("stages.requiredProgress", "ASC")
-        .getMany();
+      const activePlants = await getActivePlants();
 
-      return seasons.map((season) => ({
-        ...season.plant,
-        stages: season.plant.stages.sort(
-          (a, b) => a.requiredProgress - b.requiredProgress,
-        ),
-        season: season,
-      }));
+      return activePlants;
+    },
+    userActivePlant: async (_: any, __: any, context: any) => {
+      if (!context.user) throw new Error("Unauthorized");
+
+      const activePlant = await getPlantsByUser(context.user.id, true);
+
+      if (!activePlant) {
+        return null;
+      }
+
+      return activePlant[0];
+    },
+    userPlantHistory: async (_: any, __: any, context: any) => {
+      if (!context.user) throw new Error("Unauthorized");
+
+      const activePlant = await getPlantsByUser(context.user.id);
+
+      if (!activePlant) {
+        return null;
+      }
+
+      return activePlant;
     },
   },
 };

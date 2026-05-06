@@ -12,6 +12,7 @@ import { User } from "../user/user.entity";
 import { Emotion } from "./emotion.entity";
 import { SubEmotion } from "./subEmotion.entity";
 import { EmotionCause } from "./emotionCause.entity";
+import { EncryptionTransformerInstance } from "@/database/transformers/encryption.transformer";
 
 @Entity("emotion_logs")
 export class EmotionLog {
@@ -36,9 +37,19 @@ export class EmotionLog {
   })
   causes!: EmotionCause[];
 
-  @Column({ type: "text", nullable: true })
+  @Column({
+    type: "text",
+    nullable: true,
+    transformer: EncryptionTransformerInstance,
+  })
   notes!: string | null;
+
+  @Column({ type: "int", default: 0 })
+  pointsEarned!: number;
 
   @CreateDateColumn()
   createdAt!: Date;
+
+  @Column({ type: "date" })
+  loggedAt!: Date;
 }

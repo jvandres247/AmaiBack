@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { PlantStage } from "../plantStage/plantStage.entity";
+import { PlantSeason } from "../plantSeason/plants.entity";
 
 @Entity("plants")
 export class Plant {
@@ -14,4 +15,7 @@ export class Plant {
 
   @OneToMany(() => PlantStage, (stage) => stage.plant)
   stages!: PlantStage[];
+
+  @OneToMany(() => PlantSeason, (season) => season.plant)
+  seasons!: PlantSeason[];
 }

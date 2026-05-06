@@ -3,14 +3,14 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 export class SeedEmotions1773356670957 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      INSERT INTO emotions (id, name, icon, impact)
+      INSERT INTO emotions (id, name, icon)
       VALUES
-      (uuid_generate_v4(), 'Neutral', '😐', 1),
-      (uuid_generate_v4(), 'Feliz', '😊', 3),
-      (uuid_generate_v4(), 'En calma', '😌', 2),
-      (uuid_generate_v4(), 'Ansiedad', '😰', -2),
-      (uuid_generate_v4(), 'Tristeza', '😢', -3),
-      (uuid_generate_v4(), 'Frustración', '😤', -2)
+      (uuid_generate_v4(), 'Neutral', '😐'),
+      (uuid_generate_v4(), 'Feliz', '😊'),
+      (uuid_generate_v4(), 'En calma', '😌'),
+      (uuid_generate_v4(), 'Ansiedad', '😰'),
+      (uuid_generate_v4(), 'Tristeza', '😢'),
+      (uuid_generate_v4(), 'Frustración', '😤')
     `);
 
     await queryRunner.query(`

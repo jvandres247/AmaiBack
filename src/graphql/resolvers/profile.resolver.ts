@@ -6,6 +6,7 @@ import { UserPlant } from "@db/entities/userPlant/userPlant.entity";
 import { EmotionalGoal } from "@db/entities/emotionalGoal/emotionalGoal.entity";
 import { EmotionProcessingStyle } from "@db/entities/emotionProcessingStyle/emotionProcessingStyle.entity";
 import { AgeRange } from "@/database/entities/profile/userProfile.enum";
+import { In } from "typeorm";
 
 export const profileResolvers = {
   Query: {},
@@ -40,8 +41,10 @@ export const profileResolvers = {
 
         if (existingProfile) throw new Error("Onboarding already completed");
 
-        const goals = await goalRepo.findByIds(input.goalIds);
-        const styles = await styleRepo.findByIds(input.processingStyleIds);
+        const goals = await goalRepo.findBy({ id: In(input.goalIds) });
+        const styles = await styleRepo.findBy({
+          id: In(input.processingStyleIds),
+        });
 
         const ageRange = AgeRange[input.ageRange as keyof typeof AgeRange];
         const profile = profileRepo.create({
@@ -65,10 +68,14 @@ export const profileResolvers = {
           user,
           plant,
           startedAt: new Date(),
-          progressPercentage: 0,
+          progressPoints: 0,
         });
 
         await userPlantRepo.save(userPlant);
+
+        user.hasProfile = true;
+
+        await userRepo.save(user);
 
         await queryRunner.commitTransaction();
         return true;
