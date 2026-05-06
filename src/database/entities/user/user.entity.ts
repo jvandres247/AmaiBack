@@ -8,6 +8,7 @@ import {
 
 import { UserRole } from "./user-role.enum";
 import { EmotionLog } from "../emotion/emotionLog.entity";
+import { EncryptionTransformerInstance } from "@/database/transformers/encryption.transformer";
 
 @Entity("users")
 export class User {
@@ -17,10 +18,10 @@ export class User {
   @Column({ unique: true, nullable: true })
   cognitoSub?: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, transformer: EncryptionTransformerInstance })
   email!: string;
 
-  @Column()
+  @Column({ transformer: EncryptionTransformerInstance })
   name!: string;
 
   @Column({
@@ -32,6 +33,9 @@ export class User {
 
   @Column({ default: false })
   emailConfirmed!: boolean;
+
+  @Column({ default: false })
+  hasProfile!: boolean;
 
   @CreateDateColumn()
   createdAt!: Date;

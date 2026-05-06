@@ -170,7 +170,7 @@ query Query {
     stages {
       id
       imageUrl
-      requiredProgress
+      requiredPoints
     }
     season {
       id

@@ -12,6 +12,7 @@ export const userTypeDefs = gql`
     name: String!
     role: UserRole!
     emailConfirmed: Boolean!
+    hasProfile: Boolean!
     createdAt: String!
   }
 

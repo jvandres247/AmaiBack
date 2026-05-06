@@ -1,84 +1,168 @@
-import { EmotionLog } from "@/database/entities/emotion/emotionLog.entity";
-import { applyEmotionImpact } from "@/utils/applyEmotionImpact";
-import { AppDataSource } from "@db/data-source";
-import { Emotion } from "@db/entities/emotion/emotion.entity";
+import {
+  getAllEmotions,
+  getEmotionById,
+} from "@/database/commands/emotion/emotion.commands";
+import { getCausesByIds } from "@/database/commands/emotion/emotionCause.commands";
+import {
+  createEmotionLogEntry,
+  deleteEmotionLogById,
+  getEmotionLogById,
+  getEmotionLogsByUser,
+  updateEmotionLogEntry,
+} from "@/database/commands/emotion/emotionLog.commands";
+import { getSubEmotionsByIds } from "@/database/commands/emotion/subEmotion.commands";
+import { getUserById } from "@/database/commands/user/user.commands";
+import { updateUserPlantProgress } from "@/database/commands/userPlant/userPlant.commands";
+import { calculateEmotionLogPoints } from "@/utils/calculateEmotionLogPoints";
 
 export const emotionResolvers = {
   Query: {
     emotions: async (_: any, __: any, context: any) => {
       if (!context.user) throw new Error("Unauthorized");
 
-      const repo = AppDataSource.getRepository(Emotion);
-
-      const emotions = await repo
-        .createQueryBuilder("emotion")
-        .leftJoinAndSelect("emotion.subEmotions", "subEmotions")
-        .leftJoinAndSelect("emotion.causes", "causes")
-        .orderBy("emotion.name", "ASC")
-        .getMany();
+      const emotions = await getAllEmotions();
 
       return emotions;
     },
-    emotionLogs: async (_: any, { startDate, endDate }: any, context: any) => {
+    emotionLogs: async (_: any, { input }: any, context: any) => {
       if (!context.user) throw new Error("Unauthorized");
 
-      const repo = AppDataSource.getRepository(EmotionLog);
+      const { startDate, endDate, emotionIds, causeIds, searchNotes } = input;
 
-      const query = repo
-        .createQueryBuilder("log")
-        .leftJoinAndSelect("log.emotion", "emotion")
-        .leftJoinAndSelect("log.subEmotions", "subEmotions")
-        .leftJoinAndSelect("log.causes", "causes")
-        .where("log.userId = :userId", { userId: context.user.id })
-        .orderBy("log.createdAt", "DESC");
+      const logs = await getEmotionLogsByUser({
+        userId: context.user.id,
+        startDate,
+        endDate,
+        emotionIds,
+        causeIds,
+        searchNotes,
+      });
 
-      if (startDate) {
-        query.andWhere("log.createdAt >= :startDate", { startDate });
-      }
-
-      if (endDate) {
-        query.andWhere("log.createdAt <= :endDate", { endDate });
-      }
-
-      return query.getMany();
+      return logs;
     },
   },
   Mutation: {
     createEmotionLog: async (_: any, { input }: any, context: any) => {
       if (!context.user) throw new Error("Unauthorized");
 
-      const { emotionId, subEmotionIds = [], causeIds = [], notes } = input;
+      const {
+        emotionId,
+        subEmotionIds = [],
+        causeIds = [],
+        notes,
+        loggedAt,
+      } = input;
 
-      const emotionRepo = AppDataSource.getRepository("emotions");
-      const subEmotionRepo = AppDataSource.getRepository("sub_emotions");
-      const causeRepo = AppDataSource.getRepository("emotion_causes");
-      const logRepo = AppDataSource.getRepository("emotion_logs");
-      const userRepo = AppDataSource.getRepository("users");
+      let validatedLoggedAt: Date | null = null;
+      const providedDate = new Date(loggedAt);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-      const emotion = await emotionRepo.findOneBy({ id: emotionId });
+      if (!providedDate)
+        throw new Error("Cannot log emotions for invalid dates");
+
+      if (providedDate > today) {
+        throw new Error("Cannot log emotions for future dates");
+      }
+      validatedLoggedAt = providedDate;
+
+      const emotion = await getEmotionById(emotionId);
       if (!emotion) throw new Error("Emotion not found");
 
-      const user = await userRepo.findOneBy({ id: context.user.id });
+      const user = await getUserById(context.user.id);
+      if (!user) throw new Error("User not found");
 
-      const subEmotions = subEmotionIds.length
-        ? await subEmotionRepo.findByIds(subEmotionIds)
-        : [];
+      const subEmotions = await getSubEmotionsByIds(subEmotionIds);
+      const causes = await getCausesByIds(causeIds);
 
-      const causes = causeIds.length ? await causeRepo.findByIds(causeIds) : [];
+      const hasSubEmotions = subEmotions.length > 0;
+      const hasCauses = causes.length > 0;
+      const hasNotes = !!notes && notes.trim().length > 0;
 
-      const log = logRepo.create({
+      const pointsEarned = calculateEmotionLogPoints(
+        hasSubEmotions,
+        hasCauses,
+        hasNotes,
+      );
+
+      await updateUserPlantProgress(context.user.id, pointsEarned);
+
+      const log = await createEmotionLogEntry({
         user,
         emotion,
         subEmotions,
         causes,
         notes,
+        pointsEarned,
+        loggedAt: validatedLoggedAt,
       });
 
-      await logRepo.save(log);
-
-      await applyEmotionImpact(context.user.id, emotionId);
-
       return log;
+    },
+    updateEmotionLog: async (_: any, { input }: any, context: any) => {
+      if (!context.user) throw new Error("Unauthorized");
+
+      const {
+        logId,
+        emotionId,
+        subEmotionIds = [],
+        causeIds = [],
+        notes,
+        loggedAt,
+      } = input;
+
+      let validatedLoggedAt: Date | null = null;
+      const providedDate = new Date(loggedAt);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (!providedDate)
+        throw new Error("Cannot log emotions for invalid dates");
+
+      if (providedDate > today) {
+        throw new Error("Cannot log emotions for future dates");
+      }
+      validatedLoggedAt = providedDate;
+
+      const existingLog = await getEmotionLogById(logId);
+      if (!existingLog) throw new Error("Emotion log not found");
+      if (existingLog.user.id !== context.user.id)
+        throw new Error("Unauthorized");
+
+      let emotion = existingLog.emotion;
+
+      if (emotionId) {
+        let newEmotion = await getEmotionById(emotionId);
+        if (!newEmotion) throw new Error("Emotion not found");
+
+        emotion = newEmotion;
+      }
+
+      let subEmotions = existingLog.subEmotions;
+      if (subEmotionIds.length > 0) {
+        subEmotions = await getSubEmotionsByIds(subEmotionIds);
+      }
+
+      let causes = existingLog.causes;
+      if (causeIds.length > 0) {
+        causes = await getCausesByIds(causeIds);
+      }
+
+      const updatedLog = await updateEmotionLogEntry(logId, {
+        emotion,
+        subEmotions,
+        causes,
+        notes: notes !== undefined ? notes : existingLog.notes,
+      });
+
+      return updatedLog;
+    },
+    deleteEmotionLog: async (_: any, { logId }: any, context: any) => {
+      if (!context.user) throw new Error("Unauthorized");
+
+      const result = await deleteEmotionLogById(logId, context.user.id);
+
+      return result;
     },
   },
 };

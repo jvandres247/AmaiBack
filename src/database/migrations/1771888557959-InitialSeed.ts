@@ -34,7 +34,7 @@ export class InitialSeed1771888557959 implements MigrationInterface {
     `);
 
     await queryRunner.query(`
-      INSERT INTO plant_stages (id, "imageUrl", "requiredProgress", "plantId")
+      INSERT INTO plant_stages (id, "imageUrl", "requiredPoints", "plantId")
       SELECT
         uuid_generate_v4(),
         '/plants/loto-sereno/stage-1.png',
@@ -46,7 +46,7 @@ export class InitialSeed1771888557959 implements MigrationInterface {
     `);
 
     await queryRunner.query(`
-      INSERT INTO plant_stages (id, "imageUrl", "requiredProgress",  "plantId")
+      INSERT INTO plant_stages (id, "imageUrl", "requiredPoints",  "plantId")
       SELECT
         uuid_generate_v4(),
         '/plants/loto-sereno/stage-2.png',
@@ -58,7 +58,7 @@ export class InitialSeed1771888557959 implements MigrationInterface {
     `);
 
     await queryRunner.query(`
-      INSERT INTO plant_stages (id, "imageUrl", "requiredProgress",  "plantId")
+      INSERT INTO plant_stages (id, "imageUrl", "requiredPoints",  "plantId")
       SELECT
         uuid_generate_v4(),
         '/plants/loto-sereno/stage-3.png',
@@ -70,7 +70,7 @@ export class InitialSeed1771888557959 implements MigrationInterface {
     `);
 
     await queryRunner.query(`
-      INSERT INTO plant_stages (id, "imageUrl", "requiredProgress", "plantId")
+      INSERT INTO plant_stages (id, "imageUrl", "requiredPoints", "plantId")
       SELECT
         uuid_generate_v4(),
         '/plants/loto-sereno/stage-4.png',

@@ -13,9 +13,6 @@ export class Emotion {
   @Column()
   icon!: string;
 
-  @Column({ type: "int", default: 0 })
-  impact!: number;
-
   @OneToMany(() => SubEmotion, (subEmotion) => subEmotion.emotion)
   subEmotions!: SubEmotion[];
 

@@ -10,7 +10,7 @@ export class PlantStage {
   imageUrl!: string;
 
   @Column()
-  requiredProgress!: number;
+  requiredPoints!: number;
 
   @ManyToOne(() => Plant, (plant) => plant.stages, {
     onDelete: "CASCADE",
