@@ -1,5 +1,5 @@
 import { AppDataSource } from "@db/data-source";
-import { User } from "@db/entities/user/user.entity";
+import { AuthProvider, User } from "@db/entities/user/user.entity";
 import {
   registerUser,
   confirmUser,
@@ -11,6 +11,8 @@ import {
 } from "@modules/auth/cognito.service";
 import { UserRole } from "@db/entities/user/user-role.enum";
 import jwt from "jsonwebtoken";
+import { GraphQLContext } from "../context";
+import { GraphQLError } from "graphql";
 
 export const userResolvers = {
   Query: {
@@ -56,6 +58,87 @@ export const userResolvers = {
       } finally {
         await queryRunner.release();
       }
+    },
+    syncAuthenticatedUser: async (
+      _: unknown,
+      __: unknown,
+      context: GraphQLContext,
+    ): Promise<User> => {
+      const { identity } = context;
+
+      if (!identity) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+
+      if (!identity.email) {
+        throw new GraphQLError(
+          "The authentication token does not contain an email",
+          {
+            extensions: {
+              code: "EMAIL_NOT_AVAILABLE",
+            },
+          },
+        );
+      }
+
+      const repository = AppDataSource.getRepository(User);
+      const normalizedEmail = identity.email.trim().toLowerCase();
+
+      let user = await repository.findOne({
+        where: [
+          {
+            cognitoSub: identity.sub,
+          },
+          {
+            email: normalizedEmail,
+          },
+        ],
+      });
+
+      if (!user) {
+        user = repository.create({
+          cognitoSub: identity.sub,
+          name: identity.name?.trim() || normalizedEmail.split("@")[0],
+          email: normalizedEmail,
+          role: UserRole.USER,
+          emailConfirmed: identity.emailVerified,
+          authProvider: identity.provider as AuthProvider,
+        });
+
+        return repository.save(user);
+      }
+
+      let changed = false;
+
+      if (!user.cognitoSub) {
+        user.cognitoSub = identity.sub;
+        changed = true;
+      }
+
+      if (!user.name && identity.name) {
+        user.name = identity.name.trim();
+        changed = true;
+      }
+
+      if (identity.emailVerified && !user.emailConfirmed) {
+        user.emailConfirmed = true;
+        changed = true;
+      }
+
+      if (identity.provider === "GOOGLE" && user.authProvider !== "GOOGLE") {
+        user.authProvider = AuthProvider.GOOGLE;
+        changed = true;
+      }
+
+      if (changed) {
+        await repository.save(user);
+      }
+
+      return user;
     },
     confirmEmail: async (_: any, { email, code }: any) => {
       await confirmUser(email, code);

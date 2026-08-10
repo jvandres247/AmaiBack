@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bienvenido a Amaï</title>
+  <style>
+    /* Solo para compatibilidad básica - algunos clientes ignoran el style block */
+    .ExternalClass,
+    .ReadMsgBody {
+      width: 100%;
+      background-color: #4a4a4a;
+    }
+
+    body,
+    table,
+    td,
+    p,
+    a {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+
+    table,
+    td {
+      border-collapse: collapse;
+    }
+
+    img {
+      border: 0;
+      height: auto;
+      line-height: 100%;
+      outline: none;
+      text-decoration: none;
+      -ms-interpolation-mode: bicubic;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #4a4a4a;
+    }
+  </style>
+</head>
+
+<body style="margin: 0; padding: 0; background-color: #4a4a4a; font-family: Arial, Helvetica, sans-serif;">
+
+  <!--[if (gte mso 9)|(IE)]>
+    <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#4a4a4a">
+      <tr><td align="center">
+  <![endif]-->
+
+  <center style="width: 100%; table-layout: fixed; background-color: #4a4a4a;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" align="center" bgcolor="#4a4a4a"
+      style="background-color: #4a4a4a; width: 100%;">
+      <tr>
+        <td align="center" valign="top" style="padding: 20px 10px;">
+
+          <!-- Contenedor principal - ancho máximo 560px -->
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" align="center"
+            style="max-width: 560px; width: 100%; background-color: #4a4a4a;">
+            <tr>
+              <td align="center" valign="top" style="background-color: #4a4a4a;">
+
+                <!-- Tarjeta blanca con sombra (sin box-shadow por compatibilidad) -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff"
+                  style="background-color: #ffffff; border-radius: 18px 18px 0 0; width: 100%;">
+                  <tr>
+                    <td align="center" valign="top" style="border-radius: 18px; background-color: #ffffff;">
+
+                      <!-- Contenido principal -->
+                      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
+                        <tr>
+                          <td align="center" valign="top" style="padding: 46px 42px 36px;">
+
+                            <!-- Logo circular -->
+                            <!-- Opción 1: Borde en la imagen misma (más compatible) -->
+                            <table cellpadding="0" cellspacing="0" border="0" align="center"
+                              style="margin: 0 auto 26px;">
+                              <tr>
+                                <td align="center" valign="middle" style="padding: 0;">
+                                  <img
+                                    src="data:image/png;base64,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"
+                                    width="40" height="40" style="display: block; width: 40px; height: 40px;" border="0"
+                                    alt="Amaï">
+                                </td>
+                              </tr>
+                            </table>
+
+                            <!-- Título -->
+                            <h1
+                              style="font-size: 22px; font-weight: 700; margin: 0 0 18px 0; color: #111111; font-family: Arial, Helvetica, sans-serif;">
+                              Restablece tu contraseña</h1>
+
+                            <!-- Subtítulo -->
+                            <p
+                              style="font-size: 16px; margin: 0 0 26px 0; color: #333333; font-family: Arial, Helvetica, sans-serif;">
+                              Recibimos una solicitud para restablecer la contraseña de
+                              tu cuenta en Amaï.</p>
+
+                            <!-- Descripción -->
+                            <p
+                              style="font-size: 16px; margin: 0 0 20px 0; color: #333333; font-family: Arial, Helvetica, sans-serif; line-height: 1.5;">
+                              Utiliza el siguiente código de verificación para
+                              continuar con el proceso.
+                            </p>
+
+                            <!-- Link box / código -->
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f4f4f4"
+                              style="background-color: #f4f4f4; border-radius: 14px; margin: 0 auto 34px auto;">
+                              <tr>
+                                <td align="center" valign="top" style="padding: 20px;">
+                                  <p
+                                    style="font-size: 15px; font-weight: 700; margin: 0 0 15px 0; color: #111111; font-family: Arial, Helvetica, sans-serif;">
+                                    Tu código de verificación es:</p>
+                                  <p
+                                    style="font-size: 32px; font-weight: bold; color: #058a55; background-color: #f0f8f0; padding: 15px; letter-spacing: 5px; border-radius: 10px; margin: 0; font-family: Arial, Helvetica, sans-serif;">
+                                    ${codeParameter}</p>
+                                </td>
+                              </tr>
+                            </table>
+
+                            <!-- Mensaje final -->
+                            <p
+                              style="font-size: 15px; font-weight: 700; margin: 0 0 30px 0; color: #111111; font-family: Arial, Helvetica, sans-serif; line-height: 1.5;">
+                              A veces todos necesitamos empezar de nuevo.<br>
+                              Tu jardín seguirá esperándote 🌱<br>
+                              — El equipo de Amaï
+                            </p>
+
+                            <!-- Aviso seguridad -->
+                            <p
+                              style="font-size: 12px; margin: 0; color: #555555; font-family: Arial, Helvetica, sans-serif; line-height: 1.5;">
+                              Por tu seguridad, no compartas este código con nadie.
+                              Si no solicitaste restablecer tu contraseña, puedes ignorar este mensaje y tu cuenta
+                              permanecerá segura.
+                            </p>
+
+                          </td>
+                        </tr>
+                      </table>
+
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Footer -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#e7e8d8"
+                  style="background-color: #e7e8d8; border-radius: 0 0 18px 18px; margin-top: 0; width: 100%;">
+                  <tr>
+                    <td align="center" valign="top" style="padding: 28px 20px;">
+                      <p
+                        style="font-size: 15px; margin: 0; color: #333333; font-family: Arial, Helvetica, sans-serif; line-height: 1.6;">
+                        <strong>Amaï,</strong><br>
+                        Bienestar emocional, un paso a la vez.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+
+              </td>
+            </tr>
+          </table>
+
+        </td>
+      </tr>
+    </table>
+  </center>
+
+  <!--[if (gte mso 9)|(IE)]>
+      </td></tr></table>
+  <![endif]-->
+
+</body>
+
+</html>

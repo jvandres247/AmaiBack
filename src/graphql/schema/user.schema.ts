@@ -18,6 +18,7 @@ export const userTypeDefs = gql`
 
   type Mutation {
     register(name: String!, email: String!, password: String!): Boolean!
+    syncAuthenticatedUser: User!
   }
 
   type Query {

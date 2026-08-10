@@ -10,6 +10,11 @@ import { UserRole } from "./user-role.enum";
 import { EmotionLog } from "../emotion/emotionLog.entity";
 import { EncryptionTransformerInstance } from "@/database/transformers/encryption.transformer";
 
+export enum AuthProvider {
+  COGNITO = "COGNITO",
+  GOOGLE = "GOOGLE",
+}
+
 @Entity("users")
 export class User {
   @PrimaryGeneratedColumn("uuid")
@@ -36,6 +41,13 @@ export class User {
 
   @Column({ default: false })
   hasProfile!: boolean;
+
+  @Column({
+    type: "enum",
+    enum: AuthProvider,
+    default: AuthProvider.COGNITO,
+  })
+  authProvider!: AuthProvider;
 
   @CreateDateColumn()
   createdAt!: Date;
