@@ -1,8 +1,15 @@
 import jwt, { JwtHeader } from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
 
+const region = process.env.COGNITO_REGION;
+const userPoolId = process.env.COGNITO_USER_POOL_ID;
+const issuer =
+  process.env.COGNITO_ISSUER ||
+  `https://cognito-idp.${region}.amazonaws.com/${userPoolId}`;
+
 const client = jwksClient({
-  jwksUri: `https://cognito-idp.${process.env.COGNITO_REGION}.amazonaws.com/${process.env.COGNITO_USER_POOL_ID}/.well-known/jwks.json`,
+  jwksUri:
+    process.env.COGNITO_JWKS_URI || `${issuer}/.well-known/jwks.json`,
 });
 
 function getKey(header: JwtHeader, callback: jwt.SigningKeyCallback) {
@@ -18,7 +25,7 @@ export const verifyToken = (token: string): Promise<any> => {
       token,
       getKey,
       {
-        issuer: `https://cognito-idp.${process.env.COGNITO_REGION}.amazonaws.com/${process.env.COGNITO_USER_POOL_ID}`,
+        issuer,
         algorithms: ["RS256"],
       },
       (err, decoded: any) => {

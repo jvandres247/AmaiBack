@@ -58,7 +58,8 @@ DB_NAME=app_db
 
 COGNITO_USER_POOL_ID=xxxx
 COGNITO_CLIENT_ID=xxxx
-AWS_REGION=xxxxxx
+COGNITO_CLIENT_SECRET=xxxx
+COGNITO_REGION=xxxxxx
 ```
 
 ---
@@ -68,6 +69,7 @@ AWS_REGION=xxxxxx
 Start services:
 
 ```
+cp .env.example .env
 docker compose up --build
 ```
 
@@ -75,6 +77,63 @@ Services:
 
 - API: [http://localhost:4000/graphql](http://localhost:4000/graphql)
 - PostgreSQL: port 5432
+- AWS/Cognito (Floci): [http://localhost:4566](http://localhost:4566)
+
+Docker Compose automatically creates a local User Pool and App Client:
+
+```text
+User Pool ID: us-east-1_amaiback
+App Client ID: amaiback-local-client
+```
+
+Confirmation and password recovery codes are available in the Floci logs:
+
+```bash
+docker compose logs -f floci
+```
+
+### Cognito emails in development
+
+Floci emulates Amazon SES, but it **does not send emails over the Internet** by
+default. A message such as `SES email sent` in the logs means that the email was
+accepted and stored in the local mailbox, not delivered to Gmail or another
+email provider.
+
+All captured emails, including Cognito confirmation and password recovery
+codes, can be inspected at:
+
+- Local SES mailbox: [http://localhost:4566/_aws/ses](http://localhost:4566/_aws/ses)
+
+To retrieve the most recent email from PowerShell:
+
+```powershell
+(Invoke-RestMethod http://localhost:4566/_aws/ses).messages |
+  Sort-Object Timestamp -Descending |
+  Select-Object -First 1
+```
+
+The verification code is available in `Body.text_part`. If a new code is
+requested, always use the most recent message.
+
+For a visual inbox during development, connect
+[Mailpit](https://mailpit.axllent.org/) as an SMTP relay and open its UI at
+`http://localhost:8025`. Configure Floci with:
+
+```yaml
+environment:
+  FLOCI_SERVICES_SES_SMTP_HOST: mailpit
+  FLOCI_SERVICES_SES_SMTP_PORT: 1025
+```
+
+To deliver real emails, configure an external SMTP relay using
+`FLOCI_SERVICES_SES_SMTP_HOST`, `FLOCI_SERVICES_SES_SMTP_PORT`,
+`FLOCI_SERVICES_SES_SMTP_USER`, `FLOCI_SERVICES_SES_SMTP_PASS`, and
+`FLOCI_SERVICES_SES_SMTP_STARTTLS`. Keep credentials in environment variables
+and never commit them to the repository.
+
+Floci is free and does not require an account, license, or token. The real AWS
+configuration remains unchanged: outside Docker, omit `COGNITO_ENDPOINT`,
+`COGNITO_ISSUER`, and `COGNITO_JWKS_URI`.
 
 ---
 

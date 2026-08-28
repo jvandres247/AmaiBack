@@ -12,14 +12,33 @@ import {
 
 const client = new CognitoIdentityProviderClient({
   region: process.env.COGNITO_REGION,
+  endpoint: process.env.COGNITO_ENDPOINT,
+  credentials: process.env.COGNITO_ENDPOINT
+    ? {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || "test",
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "test",
+      }
+    : undefined,
 });
+
+const secretHash = (username: string) =>
+  process.env.COGNITO_CLIENT_SECRET
+    ? generateSecretHash(username)
+    : undefined;
+
+const secretHashAuthParameter = (
+  username: string,
+): Record<string, string> => {
+  const hash = secretHash(username);
+  return hash ? { SECRET_HASH: hash } : {};
+};
 
 export const registerUser = async (email: string, password: string) => {
   const command = new SignUpCommand({
     ClientId: process.env.COGNITO_CLIENT_ID!,
     Username: email,
     Password: password,
-    SecretHash: generateSecretHash(email),
+    SecretHash: secretHash(email),
     UserAttributes: [{ Name: "email", Value: email }],
   });
 
@@ -31,7 +50,7 @@ export const confirmUser = async (email: string, code: string) => {
     ClientId: process.env.COGNITO_CLIENT_ID!,
     Username: email,
     ConfirmationCode: code,
-    SecretHash: generateSecretHash(email),
+    SecretHash: secretHash(email),
   });
 
   return client.send(command);
@@ -44,7 +63,7 @@ export const loginUser = async (email: string, password: string) => {
     AuthParameters: {
       USERNAME: email,
       PASSWORD: password,
-      SECRET_HASH: generateSecretHash(email),
+      ...secretHashAuthParameter(email),
     },
   });
 
@@ -66,7 +85,7 @@ export const refreshSession = async (
     ClientId: process.env.COGNITO_CLIENT_ID!,
     AuthParameters: {
       REFRESH_TOKEN: refreshToken,
-      SECRET_HASH: generateSecretHash(username),
+      ...secretHashAuthParameter(username),
     },
   });
 
@@ -91,7 +110,7 @@ export const forgotPassword = async (email: string) => {
   const command = new ForgotPasswordCommand({
     ClientId: process.env.COGNITO_CLIENT_ID!,
     Username: email,
-    SecretHash: generateSecretHash(email),
+    SecretHash: secretHash(email),
   });
 
   return client.send(command);
@@ -107,7 +126,7 @@ export const confirmForgotPassword = async (
     Username: email,
     ConfirmationCode: code,
     Password: newPassword,
-    SecretHash: generateSecretHash(email),
+    SecretHash: secretHash(email),
   });
 
   return client.send(command);
