@@ -137,6 +137,62 @@ configuration remains unchanged: outside Docker, omit `COGNITO_ENDPOINT`,
 
 ---
 
+## Plant stage images (S3 in Floci)
+
+Compose enables S3 and creates the persistent `amaiback-plant-images` bucket
+automatically. The initialization hook uses the [Floci S3 API](https://floci.io/floci/services/s3/)
+to allow public reads under `plants/` for these catalog images.
+
+Place the actual images under `assets/plants/`, matching the paths stored in
+`PlantStage.imageUrl`. For example:
+
+```text
+assets/plants/loto-sereno/stage-1.png
+assets/plants/loto-sereno/stage-2.png
+assets/plants/loto-sereno/stage-3.png
+assets/plants/loto-sereno/stage-4.png
+```
+
+Run `docker compose up -d --build` to apply the configuration. At each Floci
+startup, PNG, JPG, JPEG, WebP, GIF and AVIF files (lowercase extensions) are
+synced to `s3://amaiback-plant-images/plants/`. Existing objects are preserved.
+No image files are bundled: add your images before expecting their URLs to work.
+
+To upload added or changed images without restarting Floci:
+
+```bash
+docker compose exec floci sh /etc/floci/init/ready.d/01-init-aws.sh
+```
+
+Store `/plants/loto-sereno/stage-1.png` (or `plants/loto-sereno/stage-1.png`)
+in `PlantStage.imageUrl`, as the existing seed already does. The GraphQL
+`PlantStage.imageUrl` field resolves it to:
+
+```text
+http://localhost:4566/amaiback-plant-images/plants/loto-sereno/stage-1.png
+```
+
+Existing absolute HTTP(S) image URLs are preserved. The resolver applies to
+both plant stages and the current stage returned in a user's progress.
+
+Optional `.env` settings for Compose:
+
+```dotenv
+S3_BUCKET=amaiback-plant-images
+S3_PUBLIC_ENDPOINT=http://localhost:4566
+```
+
+Use your computer's LAN address for `S3_PUBLIC_ENDPOINT` when the client runs
+on a phone or another device. The URL must be reachable by the client.
+When running Node outside Compose, set `S3_PUBLIC_BASE_URL` to the complete
+bucket URL, e.g. `http://localhost:4566/amaiback-plant-images`.
+Without that variable, GraphQL returns the stored image paths unchanged.
+
+The files persist in the `floci_data` volume. `docker compose down -v` removes
+that volume; the next startup reuploads files from `assets/plants/`.
+
+---
+
 ## Database
 
 TypeORM automatically initializes the schema in development mode.

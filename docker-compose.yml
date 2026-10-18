@@ -19,6 +19,7 @@ services:
       COGNITO_ENDPOINT: http://floci:4566
       COGNITO_ISSUER: http://floci:4566/us-east-1_amaiback
       COGNITO_JWKS_URI: http://floci:4566/us-east-1_amaiback/.well-known/jwks.json
+      S3_PUBLIC_BASE_URL: ${S3_PUBLIC_ENDPOINT:-http://localhost:4566}/${S3_BUCKET:-amaiback-plant-images}
     depends_on:
       db:
         condition: service_started
@@ -38,16 +39,19 @@ services:
       FLOCI_HOSTNAME: floci
       FLOCI_BASE_URL: http://floci:4566
       FLOCI_SERVICES_COGNITO_ENABLED: "true"
+      FLOCI_SERVICES_S3_ENABLED: "true"
+      S3_BUCKET: ${S3_BUCKET:-amaiback-plant-images}
       FLOCI_STORAGE_MODE: persistent
       FLOCI_STORAGE_PERSISTENT_PATH: /app/data
     volumes:
       - floci_data:/app/data
       - ./docker/floci/init-aws.sh:/etc/floci/init/ready.d/01-init-aws.sh:ro
+      - ./assets/plants:/opt/plant-images:ro
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "aws cognito-idp describe-user-pool --user-pool-id us-east-1_amaiback --endpoint-url http://localhost:4566 >/dev/null 2>&1",
+          "aws cognito-idp describe-user-pool --user-pool-id us-east-1_amaiback --endpoint-url http://localhost:4566 >/dev/null 2>&1 && aws s3api head-bucket --bucket $${S3_BUCKET} --endpoint-url http://localhost:4566 >/dev/null 2>&1",
         ]
       interval: 5s
       timeout: 5s

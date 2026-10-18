@@ -1,7 +1,11 @@
 import { getActivePlants } from "@/database/commands/plants/plants.commands";
 import { getPlantsByUser } from "@/database/commands/userPlant/userPlant.commands";
+import { resolvePlantImageUrl } from "@/utils/resolvePlantImageUrl";
 
 export const plantResolvers = {
+  PlantStage: {
+    imageUrl: (stage: { imageUrl: string }) => resolvePlantImageUrl(stage.imageUrl),
+  },
   Query: {
     activePlants: async (_: any, { input }: any, context: any) => {
       if (!context.user) throw new Error("Unauthorized");
